@@ -200,6 +200,7 @@ void populate_window()
 
 int main()
 {
+  srand(time(0));
   populate_window();
   drawCells();
   getch();
