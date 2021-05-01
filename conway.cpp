@@ -10,10 +10,10 @@
 using namespace std;
 
 // CONSTANTS
-int WIDTH_WINDOW = 40;
-int HEIGHT_WINDOW = 20;
+const int WIDTH_WINDOW = 40;
+const int HEIGHT_WINDOW = 40;
 
-int TIME = 1;
+int TIME = 10;
 
 string ICON_ALIVE = "0";
 string ICON_DEATH = ".";
@@ -21,76 +21,19 @@ string ICON_TRANSITION = "+";
 
 bool WITH_TRANSITIONS = false;
 
-list<list<string> > cells;
-list<list<int> > cells_transition;
+string cells[HEIGHT_WINDOW][WIDTH_WINDOW];
+int cells_transition[HEIGHT_WINDOW][WIDTH_WINDOW];
 
-
-void showList(list<list<string> > nested_list)
+void evolve_cells()
 {
-  cout << "[\n";
+  string aux_cells[HEIGHT_WINDOW][WIDTH_WINDOW];
+  int aux_cells_transition[HEIGHT_WINDOW][WIDTH_WINDOW];
 
-  // nested_list`s iterator(same type as nested_list)
-  // to iterate the nested_list
-  list<list<string> >::iterator nested_list_itr;
-
-  // Print the nested_list
-  for (nested_list_itr = nested_list.begin();
-       nested_list_itr != nested_list.end();
-       ++nested_list_itr)
-  {
-
-    cout << "  [";
-
-    // normal_list`s iterator(same type as temp_list)
-    // to iterate the normal_list
-    list<string>::iterator single_list_itr;
-
-    // pointer of each list one by one in nested list
-    // as loop goes on
-    list<string> &single_list_pointer = *nested_list_itr;
-
-    for (single_list_itr = single_list_pointer.begin();
-         single_list_itr != single_list_pointer.end();
-         single_list_itr++)
-    {
-      cout << " " << *single_list_itr << " ";
-    }
-    cout << "]\n";
-  }
-  cout << "]";
-}
-
-int returnYXValueInt (list<list<int> > cells_transition_list, int y, int x){
-  list<list<int> >::iterator itrCellsRows = cells_transition_list.begin();
-  advance(itrCellsRows, y);
-
-  list<int> &single_list_pointer = *itrCellsRows;
-
-  list<int>::iterator itrCellsColumns = single_list_pointer.begin();
-
-  advance(itrCellsColumns, x);
-  return *itrCellsColumns;
-};
-
-string returnYXValueString (list<list<string> > cells_transition_list, int y, int x){
-  list<list<string> >::iterator itrCellsRows = cells_transition_list.begin();
-  advance(itrCellsRows, y);
-
-  list<string> &single_list_pointer = *itrCellsRows;
-
-  list<string>::iterator itrCellsColumns = single_list_pointer.begin();
-
-  advance(itrCellsColumns, x);
-  return *itrCellsColumns;
-};
-
-void evolve_cells(){
-  list<list<string> > aux_cells;
-  list<list<int> > aux_cells_transition;
   for (int y = 0; y < HEIGHT_WINDOW; y++)
   {
-    list<string> row;
-    list<int> row_transition;
+    string row[WIDTH_WINDOW];
+    int row_transition[WIDTH_WINDOW];
+
     for (int x = 0; x < WIDTH_WINDOW; x++)
     {
       int live_neighbors = 0;
@@ -100,18 +43,24 @@ void evolve_cells(){
       int number_y_1 = -1;
       int number_y_2 = 2;
 
-      if (x == 0){
+      if (x == 0)
+      {
         // dont - in x
         number_x_1 = 0;
-      } else if (x == WIDTH_WINDOW - 1){
+      }
+      else if (x == WIDTH_WINDOW - 1)
+      {
         // # dont + in x
         number_x_2 = 1;
       };
 
-       if (y == 0){
+      if (y == 0)
+      {
         // dont - in y
         number_y_1 = 0;
-      } else if (y == HEIGHT_WINDOW - 1){
+      }
+      else if (y == HEIGHT_WINDOW - 1)
+      {
         // dont + in y
         number_y_2 = 1;
       };
@@ -121,78 +70,104 @@ void evolve_cells(){
         for (int j = number_x_1; j < number_x_2; j++) // x
         {
           // check that is not myself
-          if (i == 0 && j == 0) {
+          if (i == 0 && j == 0)
+          {
             continue;
           };
           // neighbors
-          string value = returnYXValueString(cells, y + i, x + j);
-          if (value == ICON_ALIVE){
+          string value = cells[y + i][x + j];
+          if (value == ICON_ALIVE)
+          {
             live_neighbors += 1;
           };
         };
       };
 
-      string value = returnYXValueString(cells, y, x);
-      if (value == ICON_ALIVE) {
+      string value = cells[y][x];
+      if (value == ICON_ALIVE)
+      {
         // im alive right now
-        if(live_neighbors < 2){
-          row.push_back(ICON_DEATH);
-          row_transition.push_back(1);
-
-        } else if(live_neighbors == 2 || live_neighbors == 3){
-          row.push_back(ICON_ALIVE);
-          row_transition.push_back(0);
-
-        } else if(live_neighbors > 3){
-          row.push_back(ICON_DEATH);
-          row_transition.push_back(1);
+        if (live_neighbors < 2)
+        {
+          row[x] = ICON_DEATH;
+          row_transition[x] = 1;
         }
-      } else {
+        else if (live_neighbors == 2 || live_neighbors == 3)
+        {
+          row[x] = ICON_ALIVE;
+          row_transition[x] = 0;
+        }
+        else if (live_neighbors > 3)
+        {
+          row[x] = ICON_DEATH;
+          row_transition[x] = 1;
+        }
+      }
+      else
+      {
         // im dead right now
-        if(live_neighbors == 3){
-          row.push_back(ICON_ALIVE);
-          row_transition.push_back(1);
-
-        } else {
-          row.push_back(ICON_DEATH);
-          row_transition.push_back(0);
-
+        if (live_neighbors == 3)
+        {
+          row[x] = ICON_ALIVE;
+          row_transition[x] = 1;
+        }
+        else
+        {
+          row[x] = ICON_DEATH;
+          row_transition[x] = 0;
         };
       };
     };
     // Aux
-    aux_cells.push_back(row);
-    aux_cells_transition.push_back(row_transition);
+    for (int iRow = 0; iRow < WIDTH_WINDOW; iRow++)
+    {
+      aux_cells[y][iRow] = row[iRow];
+      aux_cells_transition[y][iRow] = row_transition[iRow];
+    };
   };
-  cells = aux_cells;
-  cells_transition = aux_cells_transition;
+  for (int iColumn = 0; iColumn < HEIGHT_WINDOW; iColumn++)
+  {
+    for (int iRow = 0; iRow < WIDTH_WINDOW; iRow++)
+    {
+      cells[iColumn][iRow] = aux_cells[iColumn][iRow];
+      cells_transition[iColumn][iRow] = aux_cells_transition[iColumn][iRow];
+    };
+  };
 };
 
 void drawCells()
 {
-  // showList(cells);
-  while (true) {
+  while (true)
+  {
     system("cls");
-    for (int y = 0; y < HEIGHT_WINDOW; y++){
+    for (int y = 0; y < HEIGHT_WINDOW; y++)
+    {
       string text_row = "";
-      for (int x = 0; x < WIDTH_WINDOW; x++){
-        if (WITH_TRANSITIONS){
-          int value = returnYXValueInt(cells_transition, y, x);
-          if(value == 1){
-            text_row = text_row + " " + ICON_TRANSITION;  
-          } else {
-            string valueString = returnYXValueString(cells, y, x);
+      for (int x = 0; x < WIDTH_WINDOW; x++)
+      {
+        if (WITH_TRANSITIONS)
+        {
+          int value = cells_transition[y][x];
+          if (value == 1)
+          {
+            text_row = text_row + " " + ICON_TRANSITION;
+          }
+          else
+          {
+            string valueString = cells[y][x];
             text_row = text_row + " " + valueString;
           };
-        } else {
-          string value = returnYXValueString(cells, y, x);
+        }
+        else
+        {
+          string value = cells[y][x];
           text_row = text_row + " " + value;
         };
       };
       cout << text_row << endl;
     };
     evolve_cells();
-    // Sleep(TIME);
+    Sleep(TIME);
   };
 };
 
@@ -200,23 +175,26 @@ void populate_window()
 {
   for (int y = 0; y < HEIGHT_WINDOW; y++)
   {
-    list<string> row;
-    list<int> row_transition;
+    string row[WIDTH_WINDOW];
+    int row_transition[WIDTH_WINDOW];
     for (int x = 0; x < WIDTH_WINDOW; x++)
     {
       int choice = rand() % 2;
       if (choice == 1)
       {
-        row.push_back(ICON_ALIVE);
+        row[x] = ICON_ALIVE;
       }
       else
       {
-        row.push_back(ICON_DEATH);
+        row[x] = ICON_DEATH;
       };
-      row_transition.push_back(0);
+      row_transition[x] = 0;
     };
-    cells.push_back(row);
-    cells_transition.push_back(row_transition);
+    for (int iRow = 0; iRow < WIDTH_WINDOW; iRow++)
+    {
+      cells[y][iRow] = row[iRow];
+      cells_transition[y][iRow] = row_transition[iRow];
+    };
   };
 };
 
